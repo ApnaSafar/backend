@@ -1,21 +1,29 @@
+// models/Ticket.js
 const mongoose = require('mongoose');
 
 const TicketSchema = new mongoose.Schema({
-    destination: {
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
+    flight: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Flight',
+        required: true
+    },
+    seatNumber: {
         type: String,
         required: true
     },
-    date: {
+    bookingDate: {
         type: Date,
-        required: true
+        default: Date.now
     },
-    price: {
-        type: Number,
-        required: true
-    },
-    available: {
-        type: Boolean,
-        default: true
+    status: {
+        type: String,
+        enum: ['booked', 'cancelled'],
+        default: 'booked'
     }
 });
 
