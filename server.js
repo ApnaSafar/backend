@@ -28,6 +28,11 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html'));
 });
 
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: 'Something went wrong!', error: err.message });
+});
+
 app.get('/api/cities', async (req, res) => {
     try {
       const flights = await Flight.find({}, { from: 1, to: 1, _id: 0 });
@@ -41,7 +46,10 @@ app.get('/api/cities', async (req, res) => {
       res.status(500).json({ error: 'Failed to fetch cities' });
     }
   });
-  
+  // In your server.js or app.js file
+app.use('/api/tickets', ticketRoutes);
+
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

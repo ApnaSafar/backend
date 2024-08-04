@@ -1,4 +1,5 @@
 const Flight = require('../models/Flight');
+const Ticket = require('../models/Ticket');
 
 
 exports.searchFlights = async (req, res) => {
@@ -46,17 +47,59 @@ exports.searchFlights = async (req, res) => {
 exports.bookFlight = async (req, res) => {
     try {
         const { flightId } = req.body;
+        console.log('Booking attempt for flight:', flightId);
+        // Check if user is authenticated
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({ message: 'User not authenticated' });
+        }
+        
+        const userId = req.user.id;
+        console.log('User ID:', userId);
+
         const flight = await Flight.findById(flightId);
+        console.log('Found flight:', flight);
 
         if (!flight) {
             return res.status(404).json({ message: 'Flight not found' });
         }
 
-        // Here you would typically create a booking record
-        // For simplicity, we're just returning the flight details
-        res.json({ message: 'Flight booked successfully', flight });
+        if (flight.seats <= 0) {
+            return res.status(400).json({ message: 'No seats available' });
+        }
+
+        // Start a session for the transaction
+        const session = await mongoose.startSession();
+        session.startTransaction();
+
+        
+        try {
+            // Decrement available seats and save
+            flight.seats -= 1;
+            await flight.save({ session });
+
+            // Create a new ticket
+            const ticket = new Ticket({
+                user: userId,
+                flight: flightId,
+                seatNumber: `${flight.flightNumber}-${100 - flight.seats}`,
+                status: 'booked'
+            });
+            await ticket.save({ session });
+
+            // Commit the transaction
+            await session.commitTransaction();
+            session.endSession();
+
+            console.log('Ticket booked successfully:', ticket);
+            res.json({ message: 'Flight booked successfully', ticket });
+        } catch (error) {
+            // If an error occurs, abort the transaction
+            await session.abortTransaction();
+            session.endSession();
+            throw error;
+        }
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        console.error('Error booking flight:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
