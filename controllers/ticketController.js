@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 exports.bookTicket = async (req, res) => {
     const session = await mongoose.startSession();
     session.startTransaction();
+    console.log(req.user,"",req.user.id);
 
     try {
         const { flightId } = req.body;
