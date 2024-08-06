@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { authEmail } = require('../services/emailService');
 
 exports.signup = async (req, res) => {
     try {
@@ -24,6 +25,8 @@ exports.signup = async (req, res) => {
         });
 
         await user.save();
+
+        authEmail(name,email);
 
         // Create and send token
         const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
