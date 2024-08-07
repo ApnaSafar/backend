@@ -1,6 +1,5 @@
 function authMailTemplate(name) {
-    const template = `<!DOCTYPE html>
-        < html lang = "en" >
+    const template = `
             <head>
                 <meta charset="UTF-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">

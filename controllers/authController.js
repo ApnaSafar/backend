@@ -26,7 +26,7 @@ exports.signup = async (req, res) => {
 
         await user.save();
 
-        authEmail(name,email);
+        authEmail(name,email).catch(console.error);
 
         // Create and send token
         const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
