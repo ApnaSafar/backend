@@ -6,6 +6,7 @@ const authRoutes = require('./routes/auth');
 const ticketRoutes = require('./routes/tickets');
 const flightRoutes = require('./routes/flights');
 const Flight = require('./models/Flight'); // Ensure this is correctly required
+const cors=require('cors');
 
 dotenv.config();
 
@@ -15,6 +16,7 @@ const app = express();
 connectDB();
 
 // Middleware
+app.use(cors())
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '..', 'frontend')));
 
