@@ -21,6 +21,7 @@
     "mongoose": "^8.5.2",
     "node-mailjet": "^6.0.5",
     "nodemailer": "^6.9.14",
+    "puppeteer": "^23.0.1",
     "twilio": "^5.2.2"
   },
   "devDependencies": {

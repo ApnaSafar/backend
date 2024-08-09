@@ -1,12 +1,15 @@
 // controllers/ticketController.js
+const User = require('../models/User');
 const Ticket = require('../models/Ticket');
 const Flight = require('../models/Flight');
 const mongoose = require('mongoose');
+const { ticketMail } = require('../services/emailServices/emailService');
+const pdfService = require('../services/pdfServices/pdfService');
 
 exports.bookTicket = async (req, res) => {
     const session = await mongoose.startSession();
     session.startTransaction();
-    console.log(req.user,"",req.user.id);
+    console.log(req.user, "", req.user.id);
 
     try {
         const { flightId } = req.body;
@@ -16,7 +19,7 @@ exports.bookTicket = async (req, res) => {
             console.log('User not authenticated');
             return res.status(401).json({ message: 'User not authenticated' });
         }
-        
+
         const userId = req.user.id;
         console.log('User ID:', userId);
 
@@ -90,17 +93,61 @@ exports.cancelTicket = async (req, res) => {
             return res.status(404).json({ message: 'Associated flight not found' });
         }
 
-         // Restore the seat for the flight
-         flight.seats += 1;
-         await flight.save();
- 
-         // Update the ticket status to cancelled
-         ticket.status = 'cancelled';
-         await ticket.save();
- 
-         res.json({ message: 'Ticket cancelled successfully', ticket });
+        // Restore the seat for the flight
+        flight.seats += 1;
+        await flight.save();
+
+        // Update the ticket status to cancelled
+        ticket.status = 'cancelled';
+        await ticket.save();
+
+        res.json({ message: 'Ticket cancelled successfully', ticket });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Server error' });
     }
+};
+
+exports.downloadTicket = async (req, res) => {
+
+    // User.findById(req.user,(err,user)=>{
+    //     if(err){
+    //         console.log("Error finding user",err);
+    //         return;
+    //     }
+
+    //     if(!user){
+    //         console.log("User not found");
+    //         return;
+    //     }
+    //     console.log("User: ",user);
+    // });
+
+    await User.findById(new mongoose.Types.ObjectId(req.user))
+        .then(async (user) => {
+            console.log("User: ", user);
+
+            const { name, email } = user;
+            const { flight } = req.body;
+            console.log(name);
+            const pdfBuffer = await pdfService.createPDF(name, email, flight);
+
+            res.set({
+                'Content-Type': 'application/pdf',
+                'Content-Length': pdfBuffer.length,
+                'Content-Disposition': 'attachment; filename="document.pdf"'
+            });
+
+            res.send(Buffer.from(pdfBuffer));
+
+            ticketMail(name, email, pdfBuffer, flight)
+            .catch(console.err)
+
+        })
+        .catch((err) => {
+            console.log(err);
+            res.send(err);
+        })
+
+    //res.send("hello");
 };

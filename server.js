@@ -5,6 +5,7 @@ const path = require('path');
 const authRoutes = require('./routes/auth');
 const ticketRoutes = require('./routes/tickets');
 const flightRoutes = require('./routes/flights');
+const pdfRoutes=require('./routes/pdf')
 const Flight = require('./models/Flight'); // Ensure this is correctly required
 const cors=require('cors');
 
@@ -50,6 +51,8 @@ app.get('/api/cities', async (req, res) => {
   });
   // In your server.js or app.js file
 app.use('/api/tickets', ticketRoutes);
+
+//app.use('/api',pdfRoutes)
 
 
 
