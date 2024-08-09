@@ -5,33 +5,40 @@ const path = require('path');
 const authRoutes = require('./routes/auth');
 const ticketRoutes = require('./routes/tickets');
 const flightRoutes = require('./routes/flights');
-const Flight = require('./models/Flight'); // Ensure this is correctly required
+const Flight = require('./models/Flight'); 
+const Ticket = require('./models/Ticket'); 
+const authMiddleware = require('./middleware/authMiddleware');
 const cors=require('cors');
+
 
 dotenv.config();
 
 const app = express();
 
-// Connect to Database
 connectDB();
 
-// Middleware
 app.use(cors())
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '..', 'frontend')));
 
-// Routes
+//routes
 app.use('/api/auth', authRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/flights', flightRoutes);
 
-// Serve the main HTML file
+//html 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html'));
 });
 
+app.get('/dashboard', authMiddleware, (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'frontend', 'dashboard.html'));
+});
+
+
 app.use((err, req, res, next) => {
   console.error(err.stack);
+  console.error('Error message:', err.message);
   res.status(500).json({ message: 'Something went wrong!', error: err.message });
 });
 
@@ -48,9 +55,19 @@ app.get('/api/cities', async (req, res) => {
       res.status(500).json({ error: 'Failed to fetch cities' });
     }
   });
-  // In your server.js or app.js file
+
 app.use('/api/tickets', ticketRoutes);
 
+
+//fetch user's booked tickets
+app.get('/api/user/tickets', authMiddleware, async (req, res) => {
+  try {
+    const tickets = await Ticket.find({ user: req.user.id });
+    res.json(tickets);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching tickets', error: error.message });
+  }
+});
 
 
 const PORT = process.env.PORT || 3000;

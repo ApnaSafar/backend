@@ -1,7 +1,6 @@
-// controllers/ticketController.js
-const Ticket = require('../models/Ticket');
-const Flight = require('../models/Flight');
-const mongoose = require('mongoose');
+const Ticket = require("../models/Ticket");
+const Flight = require("../models/Flight");
+const mongoose = require("mongoose");
 
 exports.bookTicket = async (req, res) => {
     const session = await mongoose.startSession();
@@ -60,47 +59,50 @@ exports.bookTicket = async (req, res) => {
         session.endSession();
         console.error('Error booking ticket:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
-    }
+  }
 };
 
 exports.getUserTickets = async (req, res) => {
-    try {
-        const userId = req.user.id;
-        const tickets = await Ticket.find({ user: userId }).populate('flight');
-        res.json(tickets);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
-    }
+  try {
+    const userId = req.user.id;
+    const tickets = await Ticket.find({ user: userId }).populate("flight");
+    res.json(tickets);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
 };
 
 exports.cancelTicket = async (req, res) => {
-    try {
-        const { ticketId } = req.params;
-        const userId = req.user.id;
+  try {
+    const { ticketId } = req.params;
+    const userId = req.user.id;
 
-        const ticket = await Ticket.findOne({ _id: ticketId, user: userId, status: 'booked' });
-        if (!ticket) {
-            return res.status(404).json({ message: 'Ticket not found or already cancelled' });
-        }
-
-        // Check if the flight associated with the ticket exists
-        const flight = await Flight.findById(ticket.flight);
-        if (!flight) {
-            return res.status(404).json({ message: 'Associated flight not found' });
-        }
-
-         // Restore the seat for the flight
-         flight.seats += 1;
-         await flight.save();
- 
-         // Update the ticket status to cancelled
-         ticket.status = 'cancelled';
-         await ticket.save();
- 
-         res.json({ message: 'Ticket cancelled successfully', ticket });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
+    const ticket = await Ticket.findOne({
+      _id: ticketId,
+      user: userId,
+      status: "booked",
+    });
+    if (!ticket) {
+      return res
+        .status(404)
+        .json({ message: "Ticket not found or already cancelled" });
     }
+
+    const flight = await Flight.findById(ticket.flight);
+    if (!flight) {
+      return res.status(404).json({ message: "Associated flight not found" });
+    }
+
+    flight.seats += 1;
+    await flight.save();
+
+    ticket.status = "cancelled";
+    await ticket.save();
+
+    res.json({ message: "Ticket cancelled successfully", ticket });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
 };

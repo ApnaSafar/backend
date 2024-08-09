@@ -1,6 +1,6 @@
 const Flight = require('../models/Flight');
 const Ticket = require('../models/Ticket');
-
+const User = require('../models/User');
 
 exports.searchFlights = async (req, res) => {
     try {
@@ -11,11 +11,10 @@ exports.searchFlights = async (req, res) => {
         if (from) query.from = new RegExp(from, 'i');
         if (to) query.to = new RegExp(to, 'i');
         if (date) {
-            // Parse the date from dd-mm-yyyy to yyyy-mm-dd
             const [day, month, year] = date.split('-').map(Number);
-            const searchDate = new Date(Date.UTC(year, month - 1, day)); // Correctly create the Date object
+            const searchDate = new Date(Date.UTC(year, month - 1, day)); 
 
-            // Calculate start and end of the day
+          
             const startOfDay = new Date(searchDate.setUTCHours(0, 0, 0, 0));
             const endOfDay = new Date(searchDate.setUTCHours(23, 59, 59, 999));
 
@@ -48,7 +47,7 @@ exports.bookFlight = async (req, res) => {
     try {
         const { flightId } = req.body;
         console.log('Booking attempt for flight:', flightId);
-        // Check if user is authenticated
+        
         if (!req.user || !req.user.id) {
             return res.status(401).json({ message: 'User not authenticated' });
         }
@@ -67,33 +66,40 @@ exports.bookFlight = async (req, res) => {
             return res.status(400).json({ message: 'No seats available' });
         }
 
-        // Start a session for the transaction
+       
         const session = await mongoose.startSession();
         session.startTransaction();
 
         
         try {
-            // Decrement available seats and save
+         
             flight.seats -= 1;
             await flight.save({ session });
 
-            // Create a new ticket
+            
             const ticket = new Ticket({
                 user: userId,
                 flight: flightId,
+                flightNumber: flight.flightNumber,
+                from: flight.from,
+                to: flight.to,
+                date: flight.date,
                 seatNumber: `${flight.flightNumber}-${100 - flight.seats}`,
-                status: 'booked'
+                status: 'booked',
+                passengerName: user.name,
+                passengerEmail: user.email
             });
+
             await ticket.save({ session });
 
-            // Commit the transaction
+          
             await session.commitTransaction();
             session.endSession();
 
             console.log('Ticket booked successfully:', ticket);
             res.json({ message: 'Flight booked successfully', ticket });
         } catch (error) {
-            // If an error occurs, abort the transaction
+          
             await session.abortTransaction();
             session.endSession();
             throw error;
