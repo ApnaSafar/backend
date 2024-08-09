@@ -1,10 +1,10 @@
-// controllers/ticketController.js
 const User = require('../models/User');
 const Ticket = require('../models/Ticket');
 const Flight = require('../models/Flight');
 const mongoose = require('mongoose');
 const { ticketMail } = require('../services/emailServices/emailService');
 const pdfService = require('../services/pdfServices/pdfService');
+
 
 exports.bookTicket = async (req, res) => {
     const session = await mongoose.startSession();
@@ -63,24 +63,24 @@ exports.bookTicket = async (req, res) => {
         session.endSession();
         console.error('Error booking ticket:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
-    }
+  }
 };
 
 exports.getUserTickets = async (req, res) => {
-    try {
-        const userId = req.user.id;
-        const tickets = await Ticket.find({ user: userId }).populate('flight');
-        res.json(tickets);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
-    }
+  try {
+    const userId = req.user.id;
+    const tickets = await Ticket.find({ user: userId }).populate("flight");
+    res.json(tickets);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
 };
 
 exports.cancelTicket = async (req, res) => {
-    try {
-        const { ticketId } = req.params;
-        const userId = req.user.id;
+  try {
+    const { ticketId } = req.params;
+    const userId = req.user.id;
 
         const ticket = await Ticket.findOne({ _id: ticketId, user: userId, status: 'booked' });
         if (!ticket) {
