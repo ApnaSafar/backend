@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const Hotel=require('../models/Hotels');
 
 const connectDB = async () => {
   try {
