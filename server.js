@@ -5,7 +5,6 @@ const path = require('path');
 const authRoutes = require('./routes/auth');
 const ticketRoutes = require('./routes/tickets');
 const flightRoutes = require('./routes/flights');
-const pdfRoutes=require('./routes/pdf');
 const hotelRoutes=require('./routes/hotels');
 const Flight = require('./models/Flight'); 
 const Ticket = require('./models/Ticket'); 
