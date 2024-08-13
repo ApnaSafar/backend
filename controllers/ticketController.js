@@ -12,8 +12,8 @@ exports.bookTicket = async (req, res) => {
     console.log(req.user, "", req.user.id);
 
     try {
-        const { flightId } = req.body;
-        console.log('Booking ticket for flight:', flightId);
+        const { flightId, seatNumber } = req.body;
+        console.log('Booking ticket for flight:', flightId, 'Seat:', seatNumber);
 
         if (!req.user || !req.user.id) {
             console.log('User not authenticated');
@@ -26,29 +26,22 @@ exports.bookTicket = async (req, res) => {
         const flight = await Flight.findById(flightId).session(session);
         console.log('Found flight:', flight);
 
-        if (!flight) {
-            console.log('Flight not found');
+        if (!flight.availableSeats.includes(seatNumber)) {
+            console.log('Seat not available');
             await session.abortTransaction();
             session.endSession();
-            return res.status(404).json({ message: 'Flight not found' });
+            return res.status(400).json({ message: 'Seat not available' });
         }
 
-        if (flight.seats <= 0) {
-            console.log('No seats available');
-            await session.abortTransaction();
-            session.endSession();
-            return res.status(400).json({ message: 'No seats available' });
-        }
-
-        // Decrement available seats and save
-        flight.seats -= 1;
+        flight.availableSeats = flight.availableSeats.filter(seat => seat !== seatNumber);
+        
         await flight.save({ session });
-
+        
         // Create a new ticket
         const ticket = new Ticket({
             user: userId,
             flight: flightId,
-            seatNumber: `${flight.flightNumber}-${100 - flight.seats}`,
+            seatNumber: seatNumber,
             status: 'booked'
         });
         await ticket.save({ session });
@@ -87,7 +80,7 @@ exports.cancelTicket = async (req, res) => {
             return res.status(404).json({ message: 'Ticket not found or already cancelled' });
         }
 
-        // Check if the flight associated with the ticket exists
+        // check the flight associated with the ticket exists
         const flight = await Flight.findById(ticket.flight);
         if (!flight) {
             return res.status(404).json({ message: 'Associated flight not found' });

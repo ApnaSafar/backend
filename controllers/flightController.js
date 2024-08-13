@@ -33,7 +33,7 @@ exports.searchFlights = async (req, res) => {
         console.log('MongoDB Query:', query);
 
         const flights = await Flight.find(query);
-        console.log('Found Flights:', flights); // Log found flights
+        console.log('Found Flights:', flights); 
         res.json(flights);
     } catch (error) {
         console.error('Error:', error);

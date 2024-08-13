@@ -29,9 +29,9 @@ const FlightSchema = new mongoose.Schema({
   seats: {
     type: Number,
     required: true,
-    min: 0,
-    default: 100,
+    // default: 100 // or whatever default seat count you want
   },
+  occupiedSeats: { type: String }
 });
 
 module.exports = mongoose.model("Flight", FlightSchema);
