@@ -6,6 +6,7 @@ const reservationController=require('../controllers/reservationController');
 const router=express.Router();
 
 router.get('/',hotelController.listHotels);
+router.get('/:hotelId',hotelController.getHotel);
 
 //reservation
 router.post('/reserv/create', authMiddleware, reservationController.createReservation);
