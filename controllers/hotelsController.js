@@ -11,3 +11,14 @@ exports.listHotels=async (req,res)=>{
         console.log("Error finding :", err);
     }
 }
+
+exports.getHotel=async(req,res)=>{
+    const {hotelId}=req.params;
+    try{
+        const hotel=await Hotels.findById(hotelId);
+        res.send(hotel);
+    }
+    catch(err){
+        res.send("Error finding hotel: ",err);
+    }
+}
