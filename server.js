@@ -6,7 +6,6 @@ const path = require('path');
 const authRoutes = require('./routes/auth');
 const ticketRoutes = require('./routes/tickets');
 const flightRoutes = require('./routes/flights');
-const pdfRoutes=require('./routes/pdf')
 const hotelRoutes=require('./routes/hotels');
 const Flight = require('./models/Flight'); 
 const Ticket = require('./models/Ticket'); 
@@ -83,6 +82,10 @@ app.get('/api/user/tickets', authMiddleware, async (req, res) => {
 });
 
 //hotels
+
+//hotels
+
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
