@@ -5,7 +5,7 @@ const path = require('path');
 const authRoutes = require('./routes/auth');
 const ticketRoutes = require('./routes/tickets');
 const flightRoutes = require('./routes/flights');
-const pdfRoutes=require('./routes/pdf');
+//const pdfRoutes=require('./routes/pdf');
 const hotelRoutes=require('./routes/hotels');
 const Flight = require('./models/Flight'); 
 const Ticket = require('./models/Ticket'); 
@@ -72,7 +72,8 @@ app.use('/api/tickets', ticketRoutes);
 //fetch user's booked tickets
 app.get('/api/user/tickets', authMiddleware, async (req, res) => {
   try {
-    const tickets = await Ticket.find({ user: req.user.id });
+    const tickets = await Ticket.find({ user: req.user.id }).populate('flight');
+    console.log(tickets);
     res.json(tickets);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching tickets', error: error.message });

@@ -70,6 +70,7 @@ exports.getUserTickets = async (req, res) => {
   try {
     const userId = req.user.id;
     const tickets = await Ticket.find({ user: userId }).populate("flight");
+    console.log(tickets);
     res.json(tickets);
   } catch (error) {
     console.error(error);

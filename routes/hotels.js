@@ -1,6 +1,7 @@
 const express=require('express');
 const hotelController=require('../controllers/hotelsController');
 const authMiddleware=require('../middleware/authMiddleware');
+const reservationController=require('../controllers/reservationController');
 
 const router=express.Router();
 
