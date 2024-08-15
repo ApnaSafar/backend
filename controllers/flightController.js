@@ -48,8 +48,7 @@ exports.searchFlights = async (req, res) => {
 
 exports.bookFlight = async (req, res) => {
     try {
-        const { flightId } = req.body;
-        console.log('Booking attempt for flight:', flightId);
+        const { flightId, seatNumber } = req.body; // Seat number passed from the frontend
         
         //checking if user is authenticated
         if (!req.user || !req.user.id) {
@@ -76,7 +75,10 @@ exports.bookFlight = async (req, res) => {
 
         
         try {
-         
+            // Add the seat to the occupied seats array
+            flight.occupiedSeats.push(seatNumber);
+            await flight.save({ session });
+
             //decrementing available seats and save 
             flight.seats -= 1;
             await flight.save({ session });
@@ -89,10 +91,10 @@ exports.bookFlight = async (req, res) => {
                 from: flight.from,
                 to: flight.to,
                 date: flight.date,
-                seatNumber: `${flight.flightNumber}-${100 - flight.seats}`,
+                seatNumber: seatNumber,
                 status: 'booked',
                 passengerName: user.name,
-                passengerEmail: user.email
+                passengerEmail: user.email//req.user.email
             });
 
             await ticket.save({ session });
@@ -111,6 +113,19 @@ exports.bookFlight = async (req, res) => {
         }
     } catch (error) {
         console.error('Error booking flight:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+exports.getFlightDetails = async (req, res) => {
+    try {
+        const flight = await Flight.findById(req.params.id);
+        if (!flight) {
+            return res.status(404).json({ message: 'Flight not found' });
+        }
+        res.json(flight);
+    } catch (error) {
+        console.error('Error fetching flight details:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };

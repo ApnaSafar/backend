@@ -12,6 +12,7 @@ exports.bookTicket = async (req, res) => {
     console.log(req.user, "", req.user.id);
 
     try {
+        //only flightId earlier
         const { flightId, seatNumber } = req.body;
         console.log('Booking ticket for flight:', flightId, 'Seat:', seatNumber);
 
@@ -25,6 +26,23 @@ exports.bookTicket = async (req, res) => {
 
         const flight = await Flight.findById(flightId).session(session);
         console.log('Found flight:', flight);
+
+        if (!flight) {
+            console.log('Flight not found');
+            await session.abortTransaction();
+            session.endSession();
+            return res.status(404).json({ message: 'Flight not found' });
+        }
+
+        if (flight.seats <= 0) {
+            console.log('No seats available');
+            await session.abortTransaction();
+            session.endSession();
+            return res.status(400).json({ message: 'No seats available' });
+        }
+
+        // Decrement available seats and save
+        flight.seats -= 1;
 
         if (!flight.availableSeats.includes(seatNumber)) {
             console.log('Seat not available');
@@ -42,6 +60,7 @@ exports.bookTicket = async (req, res) => {
         const ticket = new Ticket({
             user: userId,
             flight: flightId,
+            seatNumber: `${flight.flightNumber}-${100 - flight.seats}`,
             seatNumber: seatNumber,
             status: 'booked'
         });
