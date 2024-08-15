@@ -33,11 +33,12 @@ exports.bookTicket = async (req, res) => {
             return res.status(400).json({ message: 'Seat not available' });
         }
 
+        //remove seat from availabl seats
         flight.availableSeats = flight.availableSeats.filter(seat => seat !== seatNumber);
         
         await flight.save({ session });
         
-        // Create a new ticket
+        // creating a new ticket
         const ticket = new Ticket({
             user: userId,
             flight: flightId,
@@ -80,17 +81,17 @@ exports.cancelTicket = async (req, res) => {
             return res.status(404).json({ message: 'Ticket not found or already cancelled' });
         }
 
-        // check the flight associated with the ticket exists
+        // checking if flight associated with ticket exists
         const flight = await Flight.findById(ticket.flight);
         if (!flight) {
             return res.status(404).json({ message: 'Associated flight not found' });
         }
 
-        // Restore the seat for the flight
+        // restoeing the seat for the flight
         flight.seats += 1;
         await flight.save();
 
-        // Update the ticket status to cancelled
+        // updatign ticket status to cancelled
         ticket.status = 'cancelled';
         await ticket.save();
 

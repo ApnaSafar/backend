@@ -4,6 +4,7 @@ const User = require('../models/User');
 
 exports.searchFlights = async (req, res) => {
     try {
+
         const { from, to, date } = req.query;
         console.log('Query Parameters:', { from, to, date });
         
@@ -11,14 +12,16 @@ exports.searchFlights = async (req, res) => {
         if (from) query.from = new RegExp(from, 'i');
         if (to) query.to = new RegExp(to, 'i');
         if (date) {
+
+            // parsing the date from dd-mm-yyyy(input)to yyyy-mm-dd(backend)
             const [day, month, year] = date.split('-').map(Number);
             const searchDate = new Date(Date.UTC(year, month - 1, day)); 
 
-          
+            // start and end of the day
             const startOfDay = new Date(searchDate.setUTCHours(0, 0, 0, 0));
             const endOfDay = new Date(searchDate.setUTCHours(23, 59, 59, 999));
 
-             // Log date boundaries
+             //date boundaries
              console.log('Converted Start of Day:', startOfDay);
              console.log('Converted End of Day:', endOfDay);
  
@@ -31,7 +34,7 @@ exports.searchFlights = async (req, res) => {
         
 
         console.log('MongoDB Query:', query);
-
+        //found flights logging 
         const flights = await Flight.find(query);
         console.log('Found Flights:', flights); 
         res.json(flights);
@@ -48,6 +51,7 @@ exports.bookFlight = async (req, res) => {
         const { flightId } = req.body;
         console.log('Booking attempt for flight:', flightId);
         
+        //checking if user is authenticated
         if (!req.user || !req.user.id) {
             return res.status(401).json({ message: 'User not authenticated' });
         }
@@ -66,17 +70,18 @@ exports.bookFlight = async (req, res) => {
             return res.status(400).json({ message: 'No seats available' });
         }
 
-       
+       //starting session for transaction
         const session = await mongoose.startSession();
         session.startTransaction();
 
         
         try {
          
+            //decrementing available seats and save 
             flight.seats -= 1;
             await flight.save({ session });
 
-            
+            //creating ticket (new)
             const ticket = new Ticket({
                 user: userId,
                 flight: flightId,
@@ -92,14 +97,14 @@ exports.bookFlight = async (req, res) => {
 
             await ticket.save({ session });
 
-          
+          //commiting the transaction
             await session.commitTransaction();
             session.endSession();
 
             console.log('Ticket booked successfully:', ticket);
             res.json({ message: 'Flight booked successfully', ticket });
         } catch (error) {
-          
+          //abort the transaction if error occurs
             await session.abortTransaction();
             session.endSession();
             throw error;

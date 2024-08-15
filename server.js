@@ -15,9 +15,10 @@ const cors=require('cors');
 dotenv.config();
 
 const app = express();
-
+//connecting to our database
 connectDB();
 
+//middlewares
 app.use(cors())
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '..', 'frontend')));
