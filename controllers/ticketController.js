@@ -44,24 +44,13 @@ exports.bookTicket = async (req, res) => {
         // Decrement available seats and save
         flight.seats -= 1;
 
-        if (!flight.availableSeats.includes(seatNumber)) {
-            console.log('Seat not available');
-            await session.abortTransaction();
-            session.endSession();
-            return res.status(400).json({ message: 'Seat not available' });
-        }
-
-        //remove seat from availabl seats
-        flight.availableSeats = flight.availableSeats.filter(seat => seat !== seatNumber);
-        
         await flight.save({ session });
-        
-        // creating a new ticket
+
+        // Create a new ticket
         const ticket = new Ticket({
             user: userId,
             flight: flightId,
             seatNumber: `${flight.flightNumber}-${100 - flight.seats}`,
-            seatNumber: seatNumber,
             status: 'booked'
         });
         await ticket.save({ session });

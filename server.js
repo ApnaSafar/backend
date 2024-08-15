@@ -1,6 +1,7 @@
 const express = require('express');
 const connectDB = require('./config/db');
 const dotenv = require('dotenv');
+const cors=require('cors');
 const path = require('path');
 const authRoutes = require('./routes/auth');
 const ticketRoutes = require('./routes/tickets');
@@ -10,7 +11,7 @@ const hotelRoutes=require('./routes/hotels');
 const Flight = require('./models/Flight'); 
 const Ticket = require('./models/Ticket'); 
 const authMiddleware = require('./middleware/authMiddleware');
-const cors=require('cors');
+
 
 
 dotenv.config();
@@ -73,9 +74,10 @@ app.use('/api/tickets', ticketRoutes);
 app.get('/api/user/tickets', authMiddleware, async (req, res) => {
   try {
     const tickets = await Ticket.find({ user: req.user.id }).populate('flight');
-    console.log(tickets);
+    console.log('Fetched tickets:', tickets);
     res.json(tickets);
   } catch (error) {
+    console.error('Error fetching tickets:', error);
     res.status(500).json({ message: 'Error fetching tickets', error: error.message });
   }
 });

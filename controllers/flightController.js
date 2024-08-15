@@ -1,6 +1,7 @@
 const Flight = require('../models/Flight');
 const Ticket = require('../models/Ticket');
 const User = require('../models/User');
+const mongoose = require('mongoose');
 
 exports.searchFlights = async (req, res) => {
     try {
@@ -48,7 +49,7 @@ exports.searchFlights = async (req, res) => {
 
 exports.bookFlight = async (req, res) => {
     try {
-        const { flightId, seatNumber } = req.body; // Seat number passed from the frontend
+        const { flightId} = req.body; // Seat number passed from the frontend
         
         //checking if user is authenticated
         if (!req.user || !req.user.id) {
@@ -69,17 +70,19 @@ exports.bookFlight = async (req, res) => {
             return res.status(400).json({ message: 'No seats available' });
         }
 
+
+        // Fetching user data
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
        //starting session for transaction
         const session = await mongoose.startSession();
         session.startTransaction();
 
         
         try {
-            // Add the seat to the occupied seats array
-            flight.occupiedSeats.push(seatNumber);
-            await flight.save({ session });
-
-            //decrementing available seats and save 
             flight.seats -= 1;
             await flight.save({ session });
 
@@ -90,8 +93,8 @@ exports.bookFlight = async (req, res) => {
                 flightNumber: flight.flightNumber,
                 from: flight.from,
                 to: flight.to,
-                date: flight.date,
-                seatNumber: seatNumber,
+                date: flight.departureTime,
+                seatNumber: `${flight.flightNumber}-${100 - flight.seats}`,
                 status: 'booked',
                 passengerName: user.name,
                 passengerEmail: user.email//req.user.email
@@ -117,15 +120,15 @@ exports.bookFlight = async (req, res) => {
     }
 };
 
-exports.getFlightDetails = async (req, res) => {
-    try {
-        const flight = await Flight.findById(req.params.id);
-        if (!flight) {
-            return res.status(404).json({ message: 'Flight not found' });
-        }
-        res.json(flight);
-    } catch (error) {
-        console.error('Error fetching flight details:', error);
-        res.status(500).json({ message: 'Server error', error: error.message });
-    }
-};
+// exports.getFlightDetails = async (req, res) => {
+//     try {
+//         const flight = await Flight.findById(req.params.id);
+//         if (!flight) {
+//             return res.status(404).json({ message: 'Flight not found' });
+//         }
+//         res.json(flight);
+//     } catch (error) {
+//         console.error('Error fetching flight details:', error);
+//         res.status(500).json({ message: 'Server error', error: error.message });
+//     }
+// };

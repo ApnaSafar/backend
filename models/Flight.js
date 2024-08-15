@@ -25,15 +25,6 @@ const FlightSchema = new mongoose.Schema({
   price: {
     type: Number,
     required: true,
-  },
-  seats: {
-    type: Number,
-    required: true,
-    // default: 100 // or whatever default seat count you want
-  },
-  occupiedSeats: {
-    type: [String], // Array of seat identifiers like 'A1', 'B3', etc.
-    default: []
   }
 });
 

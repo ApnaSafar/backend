@@ -5,7 +5,7 @@ dotenv.config();
 module.exports = function(req, res, next) {
    
     const token = req.header('x-auth-token');
-    console.log(token);   
+    console.log('Received token:', token);
 
     if (!token) {
         return res.status(401).json({ message: 'No token, authorization denied' });
