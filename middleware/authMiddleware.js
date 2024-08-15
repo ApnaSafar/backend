@@ -4,15 +4,9 @@ dotenv.config();
 
 module.exports = function(req, res, next) {
    
-    const token = req.headers['x-auth-token'] || req.cookies.token;
-    console.log(token);   
+    const token = req.header('x-auth-token');
+    console.log('Received token:', token);
 
-    if (!token) {
-        token = req.cookies.argon_user_token;  
-        console.log('Token from cookie:', token);
-    }
-
-    console.log(token);
     if (!token) {
         return res.status(401).json({ message: 'No token, authorization denied' });
     }

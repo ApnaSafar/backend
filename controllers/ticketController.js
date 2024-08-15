@@ -12,8 +12,9 @@ exports.bookTicket = async (req, res) => {
     console.log(req.user, "", req.user.id);
 
     try {
-        const { flightId } = req.body;
-        console.log('Booking ticket for flight:', flightId);
+        //only flightId earlier
+        const { flightId, seatNumber } = req.body;
+        console.log('Booking ticket for flight:', flightId, 'Seat:', seatNumber);
 
         if (!req.user || !req.user.id) {
             console.log('User not authenticated');
@@ -42,6 +43,7 @@ exports.bookTicket = async (req, res) => {
 
         // Decrement available seats and save
         flight.seats -= 1;
+
         await flight.save({ session });
 
         // Create a new ticket
@@ -87,17 +89,17 @@ exports.cancelTicket = async (req, res) => {
             return res.status(404).json({ message: 'Ticket not found or already cancelled' });
         }
 
-        // Check if the flight associated with the ticket exists
+        // checking if flight associated with ticket exists
         const flight = await Flight.findById(ticket.flight);
         if (!flight) {
             return res.status(404).json({ message: 'Associated flight not found' });
         }
 
-        // Restore the seat for the flight
+        // restoeing the seat for the flight
         flight.seats += 1;
         await flight.save();
 
-        // Update the ticket status to cancelled
+        // updatign ticket status to cancelled
         ticket.status = 'cancelled';
         await ticket.save();
 
