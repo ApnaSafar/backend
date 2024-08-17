@@ -6,12 +6,12 @@ const path = require('path');
 const authRoutes = require('./routes/auth');
 const ticketRoutes = require('./routes/tickets');
 const flightRoutes = require('./routes/flights');
-const pdfRoutes=require('./routes/pdf')
+const reviewRouter = require('./routes/review');
 const hotelRoutes=require('./routes/hotels');
 const Flight = require('./models/Flight'); 
 const Ticket = require('./models/Ticket'); 
 const authMiddleware = require('./middleware/authMiddleware');
-
+const bodyParser = require('body-parser');
 
 
 dotenv.config();
@@ -23,17 +23,15 @@ connectDB();
 //middlewares
 app.use(cors())
 app.use(express.json());
+app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, '..', 'frontend')));
 
 //routes
 app.use('/api/auth', authRoutes);
-
-//flight routes
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/flights', flightRoutes);
-
-//hotels routes
-app.use('/api/hotels',hotelRoutes);
+app.use('/api/hotels', hotelRoutes);
+app.use('/api/review', reviewRouter);
 
 //html 
 app.get('/', (req, res) => {
@@ -42,13 +40,6 @@ app.get('/', (req, res) => {
 
 app.get('/dashboard', authMiddleware, (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'frontend', 'dashboard.html'));
-});
-
-
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  console.error('Error message:', err.message);
-  res.status(500).json({ message: 'Something went wrong!', error: err.message });
 });
 
 app.get('/api/cities', async (req, res) => {
@@ -65,10 +56,6 @@ app.get('/api/cities', async (req, res) => {
     }
   });
 
-app.use('/api/tickets', ticketRoutes);
-
-//app.use('/api',pdfRoutes)
-
 
 //fetch user's booked tickets
 app.get('/api/user/tickets', authMiddleware, async (req, res) => {
@@ -82,7 +69,11 @@ app.get('/api/user/tickets', authMiddleware, async (req, res) => {
   }
 });
 
-//hotels
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  console.error('Error message:', err.message);
+  res.status(500).json({ message: 'Something went wrong!', error: err.message });
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
