@@ -5,7 +5,6 @@ const mongoose = require('mongoose');
 const { ticketMail } = require('../services/emailServices/emailService');
 const pdfService = require('../services/pdfServices/pdfService');
 
-
 exports.bookTicket = async (req, res) => {
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -71,7 +70,7 @@ exports.bookTicket = async (req, res) => {
 exports.getUserTickets = async (req, res) => {
   try {
     const userId = req.user.id;
-    const tickets = await Ticket.find({ user: userId }).populate("flight");
+    const tickets = await Ticket.find({ user: userId, status: 'booked' }).populate("flight");
     res.json(tickets);
   } catch (error) {
     console.error(error);

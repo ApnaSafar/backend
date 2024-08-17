@@ -44,6 +44,8 @@ app.get('/dashboard', authMiddleware, (req, res) => {
 });
 
 
+
+
 app.use((err, req, res, next) => {
   console.error(err.stack);
   console.error('Error message:', err.message);
@@ -63,29 +65,6 @@ app.get('/api/cities', async (req, res) => {
       res.status(500).json({ error: 'Failed to fetch cities' });
     }
   });
-
-app.use('/api/tickets', ticketRoutes);
-
-//app.use('/api',pdfRoutes)
-
-
-//fetch user's booked tickets
-app.get('/api/user/tickets', authMiddleware, async (req, res) => {
-  try {
-    const tickets = await Ticket.find({ user: req.user.id }).populate('flight');
-    console.log('Fetched tickets:', tickets);
-    res.json(tickets);
-  } catch (error) {
-    console.error('Error fetching tickets:', error);
-    res.status(500).json({ message: 'Error fetching tickets', error: error.message });
-  }
-});
-
-//hotels
-
-//hotels
-
-
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
