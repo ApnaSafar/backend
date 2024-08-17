@@ -25,13 +25,7 @@ const FlightSchema = new mongoose.Schema({
   price: {
     type: Number,
     required: true,
-  },
-  seats: {
-    type: Number,
-    required: true,
-    min: 0,
-    default: 100,
-  },
+  }
 });
 
 module.exports = mongoose.model("Flight", FlightSchema);
