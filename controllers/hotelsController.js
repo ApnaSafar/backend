@@ -3,7 +3,7 @@ const Hotels=require("../models/Hotels");
 exports.listHotels=async (req,res)=>{
     try{
     const hotels=await Hotels.find()
-    .select('name location description');
+    .select('name location description url');
 
     res.json(hotels);
     }
