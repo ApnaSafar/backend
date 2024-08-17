@@ -42,3 +42,4 @@ exports.ticketMail = async (name, email, pdfBuffer, flight) => {
 
     console.log("Mail sent", mail.messageId);
 }
+

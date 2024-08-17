@@ -43,6 +43,13 @@ app.get('/dashboard', authMiddleware, (req, res) => {
 });
 
 
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  console.error('Error message:', err.message);
+  res.status(500).json({ message: 'Something went wrong!', error: err.message });
+});
+
 app.get('/api/cities', async (req, res) => {
     try {
         const flights = await Flight.find({}, { from: 1, to: 1, _id: 0 });
@@ -55,26 +62,8 @@ app.get('/api/cities', async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch cities' });
     }
-});
+  });
 
-
-app.get('/api/user/tickets', authMiddleware, async (req, res) => {
-    try {
-        const tickets = await Ticket.find({ user: req.user.id }).populate('flight');
-        console.log('Fetched tickets:', tickets);
-        res.json(tickets);
-    } catch (error) {
-        console.error('Error fetching tickets:', error);
-        res.status(500).json({ message: 'Error fetching tickets', error: error.message });
-    }
-});
-
-
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    console.error('Error message:', err.message);
-    res.status(500).json({ message: 'Something went wrong!', error: err.message });
-});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

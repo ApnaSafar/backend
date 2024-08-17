@@ -41,8 +41,8 @@ const TicketSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['booked', 'cancelled', 'completed'],
-    default: "booked",
+    enum: ['booked', 'cancelled', 'completed', 'pending'],
+    default: "pending",
   },
   bookingDate: {
     type: Date,
