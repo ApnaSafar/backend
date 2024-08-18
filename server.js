@@ -12,6 +12,8 @@ const Flight = require('./models/Flight');
 const Ticket = require('./models/Ticket'); 
 const authMiddleware = require('./middleware/authMiddleware');
 const bodyParser = require('body-parser');
+const packageRoutes = require('./routes/packageRoutes');
+
 
 dotenv.config();
 
@@ -26,6 +28,7 @@ app.use(express.json());
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, '..', 'frontend')));
 
+app.use('/api/packages', packageRoutes);//packages route
 
 app.use('/api/auth', authRoutes);
 app.use('/api/tickets', ticketRoutes);
