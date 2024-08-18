@@ -17,7 +17,7 @@ const reservationSchema=new mongoose.Schema({
         required:true,
     },
     guests:{
-        type:[String],
+        type:Number,
         required:true,
     },
     checkIn:{
@@ -27,7 +27,12 @@ const reservationSchema=new mongoose.Schema({
     checkOut:{
         type:Date,
         required:true,
+    },
+    status: {
+        type: String,
+        enum: ['booked', 'cancelled', 'completed', 'pending'],
+        default: "pending",
     }
 });
 
-module.exports=reservationSchema;
+module.exports=mongoose.model("Reservation", reservationSchema);

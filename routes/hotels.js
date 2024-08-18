@@ -10,6 +10,7 @@ router.get('/:hotelId',hotelController.getHotel);
 
 //reservation
 router.post('/reserv/create', authMiddleware, reservationController.createReservation);
+router.post('/reserv/success', authMiddleware, reservationController.successReservation);
 router.get('/reserv/user', authMiddleware, reservationController.getUserReservations);
 
 module.exports=router;
