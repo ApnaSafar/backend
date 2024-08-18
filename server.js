@@ -12,7 +12,6 @@ const Flight = require('./models/Flight');
 const Ticket = require('./models/Ticket'); 
 const authMiddleware = require('./middleware/authMiddleware');
 const bodyParser = require('body-parser');
-
 dotenv.config();
 
 const app = express();
@@ -32,7 +31,6 @@ app.use('/api/tickets', ticketRoutes);
 app.use('/api/flights', flightRoutes);
 app.use('/api/hotels', hotelRoutes);
 app.use('/api/review', reviewRouter);
-
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html'));

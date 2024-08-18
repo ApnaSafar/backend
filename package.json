@@ -21,6 +21,7 @@
     "mongodb": "^6.8.0",
     "mongoose": "^8.5.2",
     "nodemailer": "^6.9.14",
+    "pdfkit": "^0.15.0",
     "puppeteer": "^23.1.0",
     "stripe": "^16.8.0",
     "twilio": "^5.2.2"
