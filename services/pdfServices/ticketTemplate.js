@@ -72,7 +72,7 @@ function ticketTemplate(name, flight, seatNo) {
             </div>
             <div>
                 <div class="label">Date</div>
-                <div class="value">${flight.departureTime}</div>
+                <div class="value">${new Date(flight.departureTime).toLocaleString()}</div>
             </div>
             <div>
                 <div class="label">Time</div>

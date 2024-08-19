@@ -1,6 +1,6 @@
 const nodemailer = require('nodemailer');
 
-async function sendReservationEmail(user, reservation, pdfPath) {
+async function sendReservationEmail(user) {
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -14,12 +14,6 @@ async function sendReservationEmail(user, reservation, pdfPath) {
         to: user.email,
         subject: 'Your Reservation Confirmation',
         text: `Dear ${user.name},\n\nThank you for your reservation. Please find attached your reservation confirmation.\n\nBest regards,\nHotel Team`,
-        attachments: [
-            {
-                filename: `Reservation_${reservation._id}.pdf`,
-                path: pdfPath,
-            },
-        ],
     };
 
     return transporter.sendMail(mailOptions);
