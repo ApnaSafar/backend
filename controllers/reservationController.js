@@ -2,6 +2,11 @@ const Reservation = require('../models/Reservation');
 const Hotel = require('../models/Hotels');
 const createCheckoutSession=require('../services/stripeSession');
 const stripe=require('stripe')(process.env.STRIPE_KEY);
+const { generateReservationPDF } = require('../services/pdfService');
+const { sendReservationEmail } = require('../services/emailService');
+const User=require('../models/User');
+
+
 
 exports.createReservation = async (req, res) => {
     
@@ -10,14 +15,16 @@ exports.createReservation = async (req, res) => {
 
         if (!req.user || !req.user.id) {
             console.log('User not authenticated');
+            console.log(req.user);
             return res.status(401).json({ message: 'User not authenticated' });
+
         }
         console.log(req.user," ",req.user.id)
         const { hotelName, roomType, guests, checkIn, checkOut, price } = req.body;
         const hotel = await Hotel.findOne({ name: hotelName });
         const newReservation = new Reservation({
             user: req.user.id, 
-            hotel:hotel._id,
+            hotel,
             roomType,
             guests,
             checkIn,
@@ -43,27 +50,30 @@ exports.createReservation = async (req, res) => {
     }
 };
 
+
 exports.successReservation = async (req, res) => {
-    const session_id=req.body.sessionId;
-    const product_id=req.body.productId;
-    console.log("here is session id and ticket id", session_id,product_id);
+    const session_id = req.body.sessionId;
+    const product_id = req.body.productId;
 
     if (!req.user || !req.user.id) {
         return res.status(401).json({ message: 'User not authenticated' });
     }
-
     try {
         const session = await stripe.checkout.sessions.retrieve(session_id);
         if (session.payment_status === 'paid') {
-            await Reservation.findByIdAndUpdate(product_id, { status: 'booked' })
+            const reservation = await Reservation.findByIdAndUpdate(product_id, { status: 'booked' }, { new: true }).populate('hotel');
+
+            // Generate PDF
+            const { filePath } = await generateReservationPDF(reservation, req.user);
+
+            // Send Email
+            await sendReservationEmail(req.user, reservation, filePath);
+
             res.json({ success: true });
-        }
-        else {
-            console.log("in else");
+        } else {
             res.json({ success: false, message: "Payment not successful" });
         }
-    }
-    catch (err) {
+    } catch (err) {
         console.log(err);
         res.json(err);
     }
@@ -83,4 +93,18 @@ exports.getUserReservations = async (req, res) => {
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
+};
+
+exports.sendReservationEmail = async (userId, reservation) => {
+    const user = await User.findById(userId);
+    
+    if (!user) {
+        throw new Error('User not found');
+    }
+
+    // Generate PDF
+    const pdfPath = await generateReservationPDF(reservation, user);
+
+    // Send email
+    await sendReservationEmail(user, reservation, pdfPath);
 };
