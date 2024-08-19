@@ -34,13 +34,13 @@ app.use('/api/flights', flightRoutes);
 app.use('/api/hotels', hotelRoutes);
 app.use('/api/review', reviewRouter);
 
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html'));
-});
+// app.get('/', (req, res) => {
+//     res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html'));
+// });
 
-app.get('/dashboard', authMiddleware, (req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'frontend', 'dashboard.html'));
-});
+// app.get('/dashboard', authMiddleware, (req, res) => {
+//     res.sendFile(path.join(__dirname, '..', 'frontend', 'dashboard.html'));
+// });
 
 
 
