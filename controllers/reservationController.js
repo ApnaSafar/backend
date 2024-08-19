@@ -6,6 +6,7 @@ const { generateReservationPDF } = require('../services/pdfService');
 const { sendReservationEmail } = require('../services/emailService');
 const User = require('../models/User');
 const { Types } = require('mongoose');
+const {reservTemplate}=require('../services/pdfServices/reservTemplate');
 
 
 
@@ -124,6 +125,40 @@ exports.cancelReservation = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
+
+exports.downloadReservation=async(req,res)=>{
+    try {
+        const { reservId } = req.params;
+        console.log(reservId)
+        const userId = req.user.id;
+
+        console.log(reservId)
+        const reserv = await Reservation.findOne({ _id: reservId, status: 'booked' });
+        console.log(reserv)
+        if (!reserv) {
+            return res.status(404).json({ message: 'Ticket not found or already cancelled' });
+        }
+
+        const hotels = await Hotel.findById(reserv.hotel);
+        if (!hotels) {
+            return res.status(404).json({ message: 'Associated flight not found' });
+        }
+
+        const user=await User.findById(userId).select('name');
+        const room = hotels.roomTypes.filter((roomType) => roomType.type === reserv.roomType);
+
+
+        const price=room[0].price;
+        console.log(room)
+
+        const html=reservTemplate(user.name, reserv, price);
+
+        res.send(html);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+}
 
 exports.sendReservationEmail = async (userId, reservation) => {
     const user = await User.findById(userId);
