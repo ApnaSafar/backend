@@ -17,14 +17,17 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "html-pdf": "^3.0.1",
+    "html2canvas": "^1.4.1",
     "jsonwebtoken": "^9.0.2",
+    "jspdf": "^2.5.1",
     "mongodb": "^6.8.0",
     "mongoose": "^8.5.2",
     "nodemailer": "^6.9.14",
     "pdfkit": "^0.15.0",
-    "puppeteer": "^23.1.0",
     "stripe": "^16.8.0",
-    "twilio": "^5.2.2"
+    "twilio": "^5.2.2",
+    "wkhtmltopdf": "^0.4.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.4"

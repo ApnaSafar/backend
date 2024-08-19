@@ -1,4 +1,4 @@
-function ticketTemplate(name, flight) {
+function ticketTemplate(name, flight, seatNo) {
   const template = `
     <!DOCTYPE html>
 <html lang="en">
@@ -93,7 +93,7 @@ function ticketTemplate(name, flight) {
         </div>
         <div class="passenger-info">
             <div class="label">Seat</div>
-            <div class="value">${flight.ticket}</div>
+            <div class="value">${seatNo}</div>
         </div>
         <div class="Line">
             *Happy Fying*

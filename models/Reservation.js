@@ -32,6 +32,10 @@ const reservationSchema=new mongoose.Schema({
         type: String,
         enum: ['booked', 'cancelled', 'completed', 'pending'],
         default: "pending",
+    },
+    hotelName:{
+        type:String,
+        required:true
     }
 });
 

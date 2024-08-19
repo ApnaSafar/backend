@@ -12,5 +12,6 @@ router.get('/:hotelId',hotelController.getHotel);
 router.post('/reserv/create', authMiddleware, reservationController.createReservation);
 router.post('/reserv/success', authMiddleware, reservationController.successReservation);
 router.get('/reserv/user', authMiddleware, reservationController.getUserReservations);
+router.put('/reserv/cancel/:reservId',authMiddleware,reservationController.cancelReservation);
 
 module.exports=router;

@@ -1,6 +1,6 @@
 const nodemailer = require('nodemailer');
 const { authMailTemplate } = require('./authMailTemplate.js');
-const { transposeIterableHandle } = require('puppeteer');
+//const { transposeIterableHandle } = require('puppeteer');
 const { ticketMailTemplate } = require('./ticketMailTemplate.js');
 require('dotenv').config();
 
@@ -27,17 +27,13 @@ exports.authEmail = async (name, email) => {
     console.log("Mail sent", mail.messageId)
 }
 
-exports.ticketMail = async (name, email, pdfBuffer, flight) => {
+exports.ticketMail = async (name, email, flight) => {
     const mail = await transporter.sendMail({
         from: `ApnaSafar <<apnasafar435@gmail.com>>`,
         to: `${email}`,
         subject: 'Booking Confirmation of Your flighr',
         text: 'Thank You for booking flight from Apna Safar',
         html: ticketMailTemplate(name, flight),
-        attachments: [{
-            filename: 'Ticket.pdf',
-            content: pdfBuffer,
-        }]
     })
 
     console.log("Mail sent", mail.messageId);

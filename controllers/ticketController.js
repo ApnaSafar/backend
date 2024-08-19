@@ -4,6 +4,7 @@ const Flight = require('../models/Flight');
 const mongoose = require('mongoose');
 const { ticketMail } = require('../services/emailServices/emailService');
 const pdfService = require('../services/pdfServices/pdfService');
+const { ticketTemplate } = require('../services/pdfServices/ticketTemplate');
 
 exports.bookTicket = async (req, res) => {
     const session = await mongoose.startSession();
@@ -64,24 +65,24 @@ exports.bookTicket = async (req, res) => {
         session.endSession();
         console.error('Error booking ticket:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
-  }
+    }
 };
 
 exports.getUserTickets = async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const tickets = await Ticket.find({ user: userId, status: 'booked' }).populate("flight");
-    res.json(tickets);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
-  }
+    try {
+        const userId = req.user.id;
+        const tickets = await Ticket.find({ user: userId, status: 'booked' }).populate("flight");
+        res.json(tickets);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
+    }
 };
 
 exports.cancelTicket = async (req, res) => {
-  try {
-    const { ticketId } = req.params;
-    const userId = req.user.id;
+    try {
+        const { ticketId } = req.params;
+        const userId = req.user.id;
 
         const ticket = await Ticket.findOne({ _id: ticketId, user: userId, status: 'booked' });
         if (!ticket) {
@@ -129,20 +130,30 @@ exports.downloadTicket = async (req, res) => {
             console.log("User: ", user);
 
             const { name, email } = user;
-            const { flight } = req.body;
-            console.log(name);
-            const pdfBuffer = await pdfService.createPDF(name, email, flight);
+            const { ticketId } = req.params;
 
-            res.set({
-                'Content-Type': 'application/pdf',
-                'Content-Length': pdfBuffer.length,
-                'Content-Disposition': 'attachment; filename="document.pdf"'
-            });
+            const ticket = await Ticket.findById(ticketId).select('flight seatNumber');
+            const flight = await Flight.findById(ticket.flight);
 
-            res.send(Buffer.from(pdfBuffer));
 
-            ticketMail(name, email, pdfBuffer, flight)
-            .catch(console.err)
+
+            console.log(flight);
+            // const pdfBuffer = await pdfService.createPDF(name, email, flight, ticket.seatNumber);
+
+            // res.set({
+            //     'Content-Type': 'application/pdf',
+            //     'Content-Length': pdfBuffer.length,
+            //     'Content-Disposition': 'attachment; filename="document.pdf"'
+            // });
+
+            const html = ticketTemplate(name, flight, ticket.seatNumber);
+
+            res.send(html);
+
+            //es.send(pdfBuffer);
+
+            ticketMail(name, email, flight)
+                .catch(console.err)
 
         })
         .catch((err) => {
