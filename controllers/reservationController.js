@@ -3,7 +3,7 @@ const Hotel = require('../models/Hotels');
 const createCheckoutSession = require('../services/stripeSession');
 const stripe = require('stripe')(process.env.STRIPE_KEY);
 const { generateReservationPDF } = require('../services/pdfService');
-const { sendReservationEmail } = require('../services/emailService');
+const { sendReservationEmail } = require('../services/emailServices/emailService');
 const User = require('../models/User');
 const { Types } = require('mongoose');
 const {reservTemplate}=require('../services/pdfServices/reservTemplate');
@@ -40,7 +40,7 @@ exports.createReservation = async (req, res) => {
         const room = hotel.roomTypes.find(rt => rt.type === roomType);
 
         const sessionId = await createCheckoutSession({
-            amount: room.price * 100,
+            amount: room.price,
             description: `Hotel ${hotel.name} with Room Type ${roomType} from ${checkIn} to ${checkOut}`,
             ticketID: newReservation._id,
             type: "Reservation"
@@ -61,16 +61,16 @@ exports.successReservation = async (req, res) => {
     if (!req.user || !req.user.id) {
         return res.status(401).json({ message: 'User not authenticated' });
     }
+
+    const user=await User.findById(req.user.id);
     try {
         const session = await stripe.checkout.sessions.retrieve(session_id);
         if (session.payment_status === 'paid') {
             const reservation = await Reservation.findByIdAndUpdate(product_id, { status: 'booked' }, { new: true }).populate('hotel');
+            const hotel = await Hotel.findOne({ name: reservation.hotelName });
+            const room = hotel.roomTypes.find(rt => rt.type === reservation.roomType);
 
-            // Generate PDF
-            const { filePath } = await generateReservationPDF(reservation, req.user);
-
-            // Send Email
-            await sendReservationEmail(req.user, reservation, filePath);
+            await sendReservationEmail(User, reservation, room.price);
 
             res.json({ success: true });
         } else {
