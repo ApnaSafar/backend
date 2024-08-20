@@ -39,7 +39,7 @@ exports.ticketMail = async (name, email, flight) => {
     console.log("Mail sent", mail.messageId);
 }
 
-exports.sendReservationEmail = async (user, reservation) => {
+exports.sendReservationEmail = async (user, reservation, price) => {
 
     const mail = await transporter.sendMail({
         from: process.env.EMAIL_USER,

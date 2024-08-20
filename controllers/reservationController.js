@@ -69,6 +69,7 @@ exports.successReservation = async (req, res) => {
             const reservation = await Reservation.findByIdAndUpdate(product_id, { status: 'booked' }, { new: true }).populate('hotel');
             const hotel = await Hotel.findOne({ name: reservation.hotelName });
             const room = hotel.roomTypes.find(rt => rt.type === reservation.roomType);
+            console.log(hote+" "+room)
 
             await sendReservationEmail(User, reservation, room.price);
 

@@ -112,19 +112,6 @@ exports.cancelTicket = async (req, res) => {
 
 exports.downloadTicket = async (req, res) => {
 
-    // User.findById(req.user,(err,user)=>{
-    //     if(err){
-    //         console.log("Error finding user",err);
-    //         return;
-    //     }
-
-    //     if(!user){
-    //         console.log("User not found");
-    //         return;
-    //     }
-    //     console.log("User: ",user);
-    // });
-
     await User.findById(new mongoose.Types.ObjectId(req.user))
         .then(async (user) => {
             console.log("User: ", user);
@@ -138,14 +125,6 @@ exports.downloadTicket = async (req, res) => {
 
 
             console.log(flight);
-            // const pdfBuffer = await pdfService.createPDF(name, email, flight, ticket.seatNumber);
-
-            // res.set({
-            //     'Content-Type': 'application/pdf',
-            //     'Content-Length': pdfBuffer.length,
-            //     'Content-Disposition': 'attachment; filename="document.pdf"'
-            // });
-
             const html = ticketTemplate(name, flight, ticket.seatNumber);
 
             res.send(html);
