@@ -70,7 +70,7 @@ exports.successReservation = async (req, res) => {
             const hotel = await Hotel.findOne({ name: reservation.hotelName });
             const room = hotel.roomTypes.find(rt => rt.type === reservation.roomType);
 
-            await sendReservationEmail(User, reservation, room.price);
+            await sendReservationEmail(user, reservation, room.price);
 
             res.json({ success: true });
         } else {
