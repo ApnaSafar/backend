@@ -17,7 +17,7 @@ async function createCheckoutSession({ type, amount, description, ticketID }) {
         },
       ],
       mode: 'payment',
-      success_url: `http://localhost:3000/success.html?type=${type}&session_id={CHECKOUT_SESSION_ID}&product_id=${ticketID}`,
+      success_url: `https://frontend-drab-zeta-69.vercel.app/success.html?type=${type}&session_id={CHECKOUT_SESSION_ID}&product_id=${ticketID}`,
       cancel_url: `https://frontend-drab-zeta-69.vercel.app/error.html`,
     });
 
